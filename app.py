@@ -52,7 +52,7 @@ def app_available(wslink_server):
 
 
 with SinglePageWithDrawerLayout(server) as layout:
-    layout.title.set_text("Leaflet Trame WebApp")
+    layout.title.set_text("Large Image Trame Web App")
 
     with layout.toolbar:
         vuetify.VSpacer()
@@ -89,7 +89,7 @@ with SinglePageWithDrawerLayout(server) as layout:
                     ),
                 )
                 # leaflet.VGeosearch(options=("options",{"provider": "OpenStreetMapProvider"}))
-                leaflet.LMarker(lat_lng=("markerLatLng", center))
+                # leaflet.LMarker(lat_lng=("markerLatLng", center))
 
                 # tiles
                 leaflet.LTileLayer(url="/tile/{z}/{x}/{y}.png")
