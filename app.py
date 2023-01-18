@@ -68,12 +68,9 @@ with SinglePageWithDrawerLayout(server) as layout:
         )
 
     with layout.drawer:
-        with vuetify.VContainer(
-            classes="pa-0"
-            # TODO: fix so that overfill scrolls
-        ):
-            meta = json.dumps(src.getMetadata(), indent=2)
-            html.Div(f"<pre>{meta}</pre>")
+        meta = json.dumps(src.getMetadata(), indent=2)
+        with html.Div(style='overflow: auto; width: 100%; height 100%;'):
+            html.Pre(f"{meta}")
 
     with layout.content:
         with vuetify.VContainer(
