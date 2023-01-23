@@ -1,3 +1,5 @@
 trame
+trame-client>=2.5.0
 trame-leaflet
+trame-vuetify>=2.1.0
 large-image-source-gdal

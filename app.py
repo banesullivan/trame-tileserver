@@ -26,7 +26,7 @@ center = (
     (bounds["ymax"] - bounds["ymin"]) / 2 + bounds["ymin"],
     (bounds["xmax"] - bounds["xmin"]) / 2 + bounds["xmin"],
 )
-
+state["metadata"] = src.getMetadata()
 
 async def metadata(request):
     """REST endpoint to get image metadata."""
@@ -68,9 +68,9 @@ with SinglePageWithDrawerLayout(server) as layout:
         )
 
     with layout.drawer:
-        meta = json.dumps(src.getMetadata(), indent=2)
         with html.Div(style='overflow: auto; width: 100%; height 100%;'):
-            html.Pre(f"{meta}")
+            vuetify.VTreeview(items=("utils.tree(metadata)",))
+
 
     with layout.content:
         with vuetify.VContainer(
