@@ -1,48 +1,49 @@
 """Image tile serving with large-image and trame."""
-
-import io
-import json
-
-import large_image
 from aiohttp import web
 from trame.app import get_server
 from trame.ui.vuetify import SinglePageWithDrawerLayout
 from trame.widgets import html, leaflet, vuetify
+
+from tileserver import Tiler  # see adjacent file
 
 server = get_server()
 state, ctrl = server.state, server.controller
 
 state.trame__title = "Large Image Trame Web App"
 
-# Open raster with large-image
-src = large_image.open(
-    "TC_NG_SFBay_US_Geo_COG.tif",
-    projection="EPSG:3857",
-    encoding="PNG",
-)
 
-bounds = src.getBounds(srs="EPSG:4326")
-center = (
-    (bounds["ymax"] - bounds["ymin"]) / 2 + bounds["ymin"],
-    (bounds["xmax"] - bounds["xmin"]) / 2 + bounds["xmin"],
-)
-state["metadata"] = src.getMetadata()
+tiler = Tiler("TC_NG_SFBay_US_Geo_COG.tif")
 
-async def metadata(request):
-    """REST endpoint to get image metadata."""
-    return web.json_response(src.getMetadata())
+bounds = tiler.bounds()
+center = tiler.center()
+state["metadata"] = tiler.source.getMetadata()
+
+# Add tile endpoints to Trame app
+my_routes = [
+    web.get("/metadata", tiler.metadata),
+    web.get("/tile/{z}/{x}/{y}.png", tiler.tile),
+]
 
 
-async def tile(request):
-    """REST endpoint to server tiles from image in slippy maps standard."""
-    z = int(request.match_info["z"])
-    x = int(request.match_info["x"])
-    y = int(request.match_info["y"])
-    tile_binary = src.getTile(x, y, z)
-    return web.Response(body=io.BytesIO(tile_binary), content_type="image/png")
-
-
-my_routes = [web.get("/metadata", metadata), web.get("/tile/{z}/{x}/{y}.png", tile)]
+BASEMAPS = [
+    {"text": "osm", "value": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"},
+    {
+        "text": "positron",
+        "value": "http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "dark-matter",
+        "value": "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "voyager",
+        "value": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "stamen-terrain",
+        "value": "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png",
+    },
+]
 
 
 @server.controller.add("on_server_bind")
@@ -55,7 +56,20 @@ with SinglePageWithDrawerLayout(server) as layout:
     layout.title.set_text("Large Image Trame Web App")
 
     with layout.toolbar:
+        layout.toolbar.style = "z-index: 1000;"  # really bump it to be above leaflet
         vuetify.VSpacer()
+
+        vuetify.VSelect(
+            label="Basemap",
+            v_model=("basemap_url", BASEMAPS[0]["value"]),
+            items=("array_list", BASEMAPS),
+            hide_details=True,
+            dense=True,
+            outlined=True,
+            classes="pt-1 ml-2",
+            style="max-width: 250px; padding: 10px;",
+        )
+
         vuetify.VSwitch(
             hide_details=True,
             v_model=("$vuetify.theme.dark",),
@@ -68,9 +82,8 @@ with SinglePageWithDrawerLayout(server) as layout:
         )
 
     with layout.drawer:
-        with html.Div(style='overflow: auto; width: 100%; height 100%;'):
+        with html.Div(style="overflow: auto; width: 100%; height 100%;"):
             vuetify.VTreeview(items=("utils.tree(metadata)",))
-
 
     with layout.content:
         with vuetify.VContainer(
@@ -79,7 +92,10 @@ with SinglePageWithDrawerLayout(server) as layout:
         ):
             with leaflet.LMap(zoom=("zoom", 9), center=("center", center)):
                 leaflet.LTileLayer(
-                    url=("url", "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"),
+                    url=(
+                        "basemap_url",
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    ),
                     attribution=(
                         "attribution",
                         '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -89,7 +105,7 @@ with SinglePageWithDrawerLayout(server) as layout:
                 # leaflet.LMarker(lat_lng=("markerLatLng", center))
 
                 # tiles
-                leaflet.LTileLayer(url="/tile/{z}/{x}/{y}.png")
+                leaflet.LTileLayer(url=("tile_url", "/tile/{z}/{x}/{y}.png"))
 
 if __name__ == "__main__":
     server.start()
