@@ -26,22 +26,53 @@ my_routes = [
 
 
 BASEMAPS = [
-    {"text": "osm", "value": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"},
     {
-        "text": "positron",
+        "text": "Open Street Map",
+        "value": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "Positron",
         "value": "http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
     },
     {
-        "text": "dark-matter",
+        "text": "Positron without labels",
+        "value": "https://{s}.basemaps.cartocdn.com/rastertiles/light_nolabels/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "Dark Matter",
         "value": "https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png",
     },
     {
-        "text": "voyager",
+        "text": "Dark Matter without labels",
+        "value": "https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "Voyager",
         "value": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}.png",
     },
     {
-        "text": "stamen-terrain",
+        "text": "Voyager without labels",
+        "value": "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "Stamen Terrain",
         "value": "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "Stamen Terrain without labels",
+        "value": "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain-background/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "National Map Satellite",
+        "value": "https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}",
+    },
+    {
+        "text": "Stamen Toner",
+        "value": "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png",
+    },
+    {
+        "text": "Stamen Toner Lite",
+        "value": "https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png",
     },
 ]
 
